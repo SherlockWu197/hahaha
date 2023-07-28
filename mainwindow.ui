@@ -14,56 +14,6 @@
    <string>UT343D V1.02</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <widget class="QPushButton" name="btn_OpenSerial">
-    <property name="geometry">
-     <rect>
-      <x>40</x>
-      <y>0</y>
-      <width>78</width>
-      <height>51</height>
-     </rect>
-    </property>
-    <property name="minimumSize">
-     <size>
-      <width>78</width>
-      <height>51</height>
-     </size>
-    </property>
-    <property name="maximumSize">
-     <size>
-      <width>78</width>
-      <height>51</height>
-     </size>
-    </property>
-    <property name="text">
-     <string>打开串口</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="btn_CloseSerial">
-    <property name="geometry">
-     <rect>
-      <x>120</x>
-      <y>0</y>
-      <width>78</width>
-      <height>51</height>
-     </rect>
-    </property>
-    <property name="minimumSize">
-     <size>
-      <width>78</width>
-      <height>51</height>
-     </size>
-    </property>
-    <property name="maximumSize">
-     <size>
-      <width>78</width>
-      <height>51</height>
-     </size>
-    </property>
-    <property name="text">
-     <string>关闭串口</string>
-    </property>
-   </widget>
    <widget class="QWidget" name="">
     <property name="geometry">
      <rect>
@@ -125,18 +75,102 @@
         </size>
        </property>
        <property name="currentIndex">
-        <number>0</number>
+        <number>2</number>
        </property>
-       <widget class="QWidget" name="tab">
+       <widget class="QWidget" name="tab_table">
         <attribute name="title">
          <string>Tab 1</string>
         </attribute>
        </widget>
-       <widget class="QWidget" name="tab_2">
+       <widget class="QWidget" name="tab_Histogram">
         <attribute name="title">
          <string>Tab 2</string>
         </attribute>
        </widget>
+       <widget class="QWidget" name="tab_Chart">
+        <attribute name="title">
+         <string>页</string>
+        </attribute>
+       </widget>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+   <widget class="QWidget" name="">
+    <property name="geometry">
+     <rect>
+      <x>60</x>
+      <y>0</y>
+      <width>374</width>
+      <height>53</height>
+     </rect>
+    </property>
+    <layout class="QHBoxLayout" name="horizontalLayout_2">
+     <item>
+      <widget class="QComboBox" name="comboBox_Serial">
+       <property name="minimumSize">
+        <size>
+         <width>120</width>
+         <height>0</height>
+        </size>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="btn_refreshSerial">
+       <property name="minimumSize">
+        <size>
+         <width>78</width>
+         <height>51</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>78</width>
+         <height>51</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>刷新</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="btn_OpenSerial">
+       <property name="minimumSize">
+        <size>
+         <width>78</width>
+         <height>51</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>78</width>
+         <height>51</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>打开串口</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="btn_CloseSerial">
+       <property name="minimumSize">
+        <size>
+         <width>78</width>
+         <height>51</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>78</width>
+         <height>51</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>关闭串口</string>
+       </property>
       </widget>
      </item>
     </layout>
