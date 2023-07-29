@@ -50,13 +50,11 @@ void MainWindow::initConnect()
 
     /*手动发送数据，模拟程序对数据的处理*/
     connect(ui->btn_SendData, &QPushButton::clicked, this, [=](){
-        QByteArray temByteArray;
         QString tempString = ui->lineEdit->text();
         QByteArray byteArray = QByteArray::fromHex(tempString.toUtf8());
         handleResultData(byteArray);
         qDebug() << "the string is:" << tempString;
-        qDebug() << "the Qbytearray is:" << temByteArray;
-
+        qDebug() << "the Qbytearray is:" << byteArray;
     });
 }
 
@@ -147,11 +145,7 @@ void MainWindow::requestDeviceID()
 void MainWindow::handleResultData(const QByteArray &data)
 {
     QByteArray resultData = data;
-
-    qDebug() << "your result data is:" << data/*.toHex()*/;
-
-    qDebug() << "your hex result data is:" << data.toHex();
-
+    qDebug() << "handleResultData" ;
     /*对返回的数据格式进行校验*/
     if(!resultData.isEmpty() && resultData.at(0) == '\xAA' && resultData.at(1) == '\xBB')
     {
@@ -219,8 +213,15 @@ void MainWindow::slotClickConnectSerialBtn()
     {
         connect(m_pQSerialPort, &QSerialPort::readyRead, [&]() {
             QByteArray data = m_pQSerialPort->readAll();
+            QString str = data;
+
+            /*将通过蓝牙接收的数据重新转换为十六进制的数*/
+            QByteArray transfromData = QByteArray::fromHex(str.toUtf8());
            //ToDo
-            handleResultData(data);
+            qDebug() << "receive data byte form:" << data;
+
+            qDebug() << "receive data string form:" << str;
+            handleResultData(transfromData);
         });
 
         /*连接上串口后更新按钮使能状态*/
