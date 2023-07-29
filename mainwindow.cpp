@@ -47,12 +47,15 @@ void MainWindow::initConnect()
     connect(ui->btn_CloseSerial,&QPushButton::clicked, this, &MainWindow::slotClickCloseSerialBtn);
     connect(ui->btn_RequestID, &QPushButton::clicked, this, &MainWindow::requestDeviceID);
 //    connect(ui->btn_RealTimeMeasure, &QPushButton::clicked, this, &MainWindow::requestRealTimeData);
+
+    /*手动发送数据，模拟程序对数据的处理*/
     connect(ui->btn_SendData, &QPushButton::clicked, this, [=](){
         QByteArray temByteArray;
         QString tempString = ui->lineEdit->text();
-        temByteArray = tempString.toUtf8();
-        qDebug() << tempString;
-        qDebug() << temByteArray;
+        QByteArray byteArray = QByteArray::fromHex(tempString.toUtf8());
+        handleResultData(byteArray);
+        qDebug() << "the string is:" << tempString;
+        qDebug() << "the Qbytearray is:" << temByteArray;
 
     });
 }
@@ -147,39 +150,44 @@ void MainWindow::handleResultData(const QByteArray &data)
 
     qDebug() << "your result data is:" << data/*.toHex()*/;
 
-    /*解析响应数据*/
-    if(!resultData.isEmpty())
+    qDebug() << "your hex result data is:" << data.toHex();
+
+    /*对返回的数据格式进行校验*/
+    if(!resultData.isEmpty() && resultData.at(0) == '\xAA' && resultData.at(1) == '\xBB')
     {
-        /*下位机设备ID*/
-        if(resultData.at(2) == 0x00)
-        {
+            qDebug() << "entre verify sentence";
+            /*下位机设备ID*/
+            if(resultData.at(2) == 0x00)
+            {
+                qDebug() << "you have enterd request device ID Mode";
+            }
 
-        }
+            /*实时数据*/
+            if(resultData.at(2) == 0x01)
+            {
+                qDebug() << "you have entred realTime Mode";
+                handleRealTimeData(resultData);
+            }
 
-        /*实时数据*/
-        if(resultData.at(2) == 0x01)
-        {
-            qDebug() << "you have entred realTime Mode";
-        }
+            /*已存储的数据*/
+            if(resultData.at(2) == 0x05)
+            {
+                qDebug() << "you have entred request store data mode";
+            }
 
-        /*已存储的数据*/
-        if(resultData.at(2) == 0x05)
-        {
-
-        }
-
-        /*握手结果*/
-        if(resultData.at(2) == 0xFF)
-        {
-
-        }
+            /*握手结果*/
+            if(resultData.at(2) == '\xFF')
+            {
+                qDebug() << "you have enter request resulte of handshake";
+            }
     }
-
 }
 
 void MainWindow::handleRealTimeData(const QByteArray& data)
 {
 //    LiveDataMessage* liveDataMessage = (LiveDataMessage*)data.constData();
+    QByteArray realTimeData = data;
+
 }
 
 void MainWindow::slotRefreshSerial()
