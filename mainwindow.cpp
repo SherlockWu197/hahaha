@@ -26,6 +26,7 @@ void MainWindow::InitView()
     ui->tabWidget->setTabText(0, QString(tr("Table")));
     ui->tabWidget->setTabText(1, QString(tr("Histogram")));
     ui->tabWidget->setTabText(2, QString(tr("Chart")));
+
 }
 
 void MainWindow::InitData()
@@ -37,7 +38,6 @@ void MainWindow::InitData()
 
 void MainWindow::InitConnect()
 {
-    //connect(  this,&MainWindow::mainwidgetstr,da,&Data::show_data);
     connect(ui->btn_refreshSerial,&QPushButton::clicked, this, &MainWindow::SlotRefreshSerial);
     connect(ui->btn_OpenSerial,&QPushButton::clicked, this, &MainWindow::SlotClickConnectSerialBtn);
     connect(ui->btn_CloseSerial,&QPushButton::clicked, this, &MainWindow::SlotClickCloseSerialBtn);
@@ -68,7 +68,11 @@ void MainWindow::RefreshSerial()
 void MainWindow::SlotRefreshSerial()
 {
     ui->comboBox_Serial->clear();
+
     InitView();
+
+    SlotClickCloseSerialBtn();
+
     RefreshSerial();
 }
 
@@ -92,21 +96,31 @@ void MainWindow::SlotClickConnectSerialBtn()
         connect(m_pQSerialPort, &QSerialPort::readyRead, [&]() {
             QByteArray data = m_pQSerialPort->readAll();
             qDebug() << "Received data:" << data;
-            ui->textBrowser->setText(data);
+//            ui->textBrowser->setText(data);
         });
 
         /*连接上串口后更新按钮使能状态*/
         ui->btn_OpenSerial->setEnabled(false);
         ui->btn_CloseSerial->setEnabled(true);
     }
+
+    QMessageBox::information(nullptr, "Information", "This is an information message box.");
 }
 
 void MainWindow::SlotClickCloseSerialBtn()
 {
-    m_pQSerialPort->clear();
-    m_pQSerialPort->close();
-    m_pQSerialPort->deleteLater();
-    ui->btn_OpenSerial->setEnabled(true);
+    /*断开串口连接*/
+    if(m_pQSerialPort != NULL)
+    {
+        m_pQSerialPort->clear();
+        m_pQSerialPort->close();
+        m_pQSerialPort->deleteLater();
+    }
+
+    m_pQSerialPort = new QSerialPort();
+
+    /*更新按钮状态*/
+    ui->btn_OpenSerial->setEnabled(false);
     ui->btn_CloseSerial->setEnabled(false);
 }
 

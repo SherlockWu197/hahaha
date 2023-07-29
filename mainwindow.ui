@@ -14,7 +14,7 @@
    <string>UT343D V1.02</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <widget class="QWidget" name="">
+   <widget class="QWidget" name="layoutWidget">
     <property name="geometry">
      <rect>
       <x>31</x>
@@ -27,7 +27,7 @@
      <item>
       <layout class="QVBoxLayout" name="verticalLayout">
        <item>
-        <widget class="QTextBrowser" name="textBrowser">
+        <widget class="CDataDisplayScreen" name="textBrowser">
          <property name="minimumSize">
           <size>
            <width>186</width>
@@ -96,7 +96,7 @@
      </item>
     </layout>
    </widget>
-   <widget class="QWidget" name="">
+   <widget class="QWidget" name="layoutWidget">
     <property name="geometry">
      <rect>
       <x>60</x>
@@ -261,6 +261,13 @@
    </property>
   </action>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>CDataDisplayScreen</class>
+   <extends>QTextBrowser</extends>
+   <header location="global">cdatadisplayscreen.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

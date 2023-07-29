@@ -5,6 +5,8 @@
 #include <QDebug>
 #include <QSerialPortInfo>
 #include <QSerialPort>
+#include <QMessageBox>
+#include <cdatadisplayscreen.h>
 #define NUM_ONE 0x01
 
 QT_BEGIN_NAMESPACE
