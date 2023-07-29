@@ -7,9 +7,9 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
 
-    InitView();
-    InitData();
-    InitConnect();
+    initView();
+    initData();
+    initConnect();
 }
 
 MainWindow::~MainWindow()
@@ -17,7 +17,7 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-void MainWindow::InitView()
+void MainWindow::initView()
 {
     /*初始化按钮状态为失能状态*/
     ui->btn_OpenSerial->setEnabled(false);
@@ -29,22 +29,33 @@ void MainWindow::InitView()
 
 }
 
-void MainWindow::InitData()
+void MainWindow::initData()
 {
     m_pQSerialPort = new QSerialPort();
+    m_pDatadisplayScreen = new CDataDisplayScreen(ui->textBrowser);
 
-    RefreshSerial();
+    refreshSerial();
 }
 
-void MainWindow::InitConnect()
+void MainWindow::initConnect()
 {
-    connect(ui->btn_refreshSerial,&QPushButton::clicked, this, &MainWindow::SlotRefreshSerial);
-    connect(ui->btn_OpenSerial,&QPushButton::clicked, this, &MainWindow::SlotClickConnectSerialBtn);
-    connect(ui->btn_CloseSerial,&QPushButton::clicked, this, &MainWindow::SlotClickCloseSerialBtn);
+    connect(ui->btn_refreshSerial,&QPushButton::clicked, this, &MainWindow::slotRefreshSerial);
+    connect(ui->btn_OpenSerial,&QPushButton::clicked, this, &MainWindow::slotClickConnectSerialBtn);
+    connect(ui->btn_CloseSerial,&QPushButton::clicked, this, &MainWindow::slotClickCloseSerialBtn);
+    connect(ui->btn_RequestID, &QPushButton::clicked, this, &MainWindow::requestDeviceID);
 }
 
-void MainWindow::RefreshSerial()
+void MainWindow::refreshSerial()
 {
+    ui->btn_OpenSerial->setEnabled(false);
+    ui->btn_CloseSerial->setEnabled(false);
+
+    /*当combox为非空时，清除里面的item*/
+    if(ui->comboBox_Serial->count() != 0)
+    {
+        ui->comboBox_Serial->clear();
+    }
+
     /*对可用的串口进行查询*/
     foreach(const QSerialPortInfo &info,QSerialPortInfo::availablePorts())
     {
@@ -65,18 +76,61 @@ void MainWindow::RefreshSerial()
     }
 }
 
-void MainWindow::SlotRefreshSerial()
+void MainWindow::requestDeviceID()
 {
-    ui->comboBox_Serial->clear();
+    QByteArray header;
+    header.append(static_cast<char>(0xAA)); // 消息头字节1
+    header.append(static_cast<char>(0xBB)); // 消息头字节2
 
-    InitView();
+    // UT343D协议消息：设备ID请求
+    QByteArray deviceIdRequest;
+    deviceIdRequest.append(static_cast<char>(0x31)); // 消息类型
+    deviceIdRequest.append(static_cast<char>(0x30)); // 上位机请求设备ID
+    deviceIdRequest.append(static_cast<char>(0x01)); // 校验码1
+    deviceIdRequest.append(static_cast<char>(0xCA)); // 校验码2
 
-    SlotClickCloseSerialBtn();
+    // UT343D协议消息长度
+    QByteArray msgLength;
+    msgLength.append(static_cast<char>(0x04));
+    // 发送设备ID请求消息到串口
+//    QByteArray requestPacket = header + QByteArray::number(deviceIdRequest.length()) + deviceIdRequest;
+    QByteArray requestPacket = header + msgLength + deviceIdRequest;
 
-    RefreshSerial();
+    qDebug() << requestPacket;
+    qDebug() << requestPacket.toHex();
+    qDebug() << deviceIdRequest.length();
+
+    int bytesWritten = m_pQSerialPort->write(requestPacket);
+    if (bytesWritten == -1) {
+        qWarning() << "向串口写入数据失败：" << m_pQSerialPort->errorString();
+    } else {
+        qDebug() << "已发送设备ID请求。";
+    }
+
+    // 读取串口的响应数据
+    QByteArray responseData;
+    while (m_pQSerialPort->waitForReadyRead(3000)) {
+        responseData.append(m_pQSerialPort->readAll());
+    }
+
+    // 解析响应数据
+    if (!responseData.isEmpty()) {
+        // TODO：根据UT343D协议处理接收到的数据
+        qDebug() << "收到的数据：" << responseData.toHex();
+    } else {
+        qWarning() << "未从串口接收到响应数据。";
+    }
 }
 
-void MainWindow::SlotClickConnectSerialBtn()
+void MainWindow::slotRefreshSerial()
+{
+    initView();
+
+    slotClickCloseSerialBtn();
+
+}
+
+void MainWindow::slotClickConnectSerialBtn()
 {
     m_pQSerialPort = new QSerialPort(ui->comboBox_Serial->currentText(),this);//打开串口
 
@@ -89,6 +143,8 @@ void MainWindow::SlotClickConnectSerialBtn()
     if(!m_pQSerialPort->open(QIODevice::ReadWrite))
     {
         qWarning() << "Failed to open serial port:" << m_pQSerialPort->errorString();
+
+        QMessageBox::information(nullptr, QString(tr("connect serial")), QString(tr("fail to connect the serial!Please check your state.")));
     }
 
     else
@@ -100,27 +156,24 @@ void MainWindow::SlotClickConnectSerialBtn()
         });
 
         /*连接上串口后更新按钮使能状态*/
+        QMessageBox::information(nullptr, QString(tr("connect serial")), QString(tr("you have connected the serial!")));
         ui->btn_OpenSerial->setEnabled(false);
         ui->btn_CloseSerial->setEnabled(true);
     }
 
-    QMessageBox::information(nullptr, "Information", "This is an information message box.");
 }
 
-void MainWindow::SlotClickCloseSerialBtn()
+void MainWindow::slotClickCloseSerialBtn()
 {
     /*断开串口连接*/
-    if(m_pQSerialPort != NULL)
+    if(m_pQSerialPort != nullptr)
     {
         m_pQSerialPort->clear();
         m_pQSerialPort->close();
         m_pQSerialPort->deleteLater();
+        m_pQSerialPort = nullptr;
     }
 
-    m_pQSerialPort = new QSerialPort();
-
-    /*更新按钮状态*/
-    ui->btn_OpenSerial->setEnabled(false);
-    ui->btn_CloseSerial->setEnabled(false);
+    refreshSerial();
 }
 

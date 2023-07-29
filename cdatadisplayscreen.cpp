@@ -8,6 +8,8 @@ CDataDisplayScreen::CDataDisplayScreen(QWidget *parent) :
     ui->setupUi(this);
     setAutoFillBackground(true);
 
+//    InitData();
+
     InitView();
 }
 
@@ -16,10 +18,28 @@ CDataDisplayScreen::~CDataDisplayScreen()
     delete ui;
 }
 
+CDataDisplayScreen *CDataDisplayScreen::GetInstance()
+{
+    return this;
+}
+
 void CDataDisplayScreen::InitView()
 {
-//    this->setStyleSheet("background-color: white;");
-    QPalette palette = this->palette();
-       palette.setColor(QPalette::Background, Qt::white);
-       this->setPalette(palette);
+
+}
+
+void CDataDisplayScreen::paintEvent(QPaintEvent *event)
+{
+    QPainter painter(this);
+
+    // 绘制控件的背景颜色
+    painter.fillRect(rect(), Qt::white);
+
+    // 绘制自定义控件的边框为灰黑
+    QPen borderPen("#828790");
+    borderPen.setWidth(1);
+    painter.setPen(borderPen);
+    painter.drawRect(rect().adjusted(0, 0, -1, -1));
+
+    QWidget::paintEvent(event);
 }

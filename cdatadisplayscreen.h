@@ -2,6 +2,7 @@
 #define CDATADISPLAYSCREEN_H
 
 #include <QWidget>
+#include <QPainter>
 
 namespace Ui {
 class CDataDisplayScreen;
@@ -15,6 +16,7 @@ public:
     explicit CDataDisplayScreen(QWidget *parent = nullptr);
     ~CDataDisplayScreen();
 
+    CDataDisplayScreen* GetInstance();
 
 private:
     void InitView();
@@ -22,6 +24,9 @@ private:
     void InitData();
 
     void InitConnect();
+
+protected:
+    virtual void paintEvent(QPaintEvent *event);
 
 private:
     Ui::CDataDisplayScreen *ui;
