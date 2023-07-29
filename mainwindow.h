@@ -1,6 +1,7 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
+/*可优化问题：手机蓝牙端数据转化为十六进制步骤可能较为繁杂*/
 #include <QMainWindow>
 #include <QDebug>
 #include <QSerialPortInfo>
@@ -15,20 +16,6 @@ const quint8 MSG_TYPE_DEVICE_ID = 0x00; // 消息类型：下位机设备ID
 const quint8 MSG_TYPE_LIVE_DATA = 0x01; // 消息类型：实时数据
 const quint8 MSG_TYPE_STORE_DATA = 0x05; // 消息类型，存储的数据
 const quint8 MSG_TYPE_RESULT = 0xFF;   // 消息类型：握手结果
-
-// 实时数据消息结构体
-struct LiveDataMessage {
-    quint8 headerHightByte;  // 消息头高字节
-    quint8 headerLowByte;  // 消息头低字节
-    quint8 length;  // 消息长度
-    quint8 msgType; // 消息类型
-    float display;  // 显示值
-    char unit[3];   // 单位
-    char function;  // 功能码
-    quint8 mode;    // 模式
-    quint8 status;  // 状态
-    quint16 checksum; // 校验和
-};
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -83,8 +70,8 @@ private:
     Ui::MainWindow *ui;
     QSerialPort* m_pQSerialPort;
     QString m_serialportName;   //用于保存串口名
-    CDataDisplayScreen* m_pDatadisplayScreen;
-    QByteArray header;
+    CDataDisplayScreen* m_pDatadisplayScreen; //自定义数据展示封装类
+    QByteArray header;     //消息头
 
 };
 #endif // MAINWINDOW_H

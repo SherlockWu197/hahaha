@@ -146,6 +146,7 @@ void MainWindow::handleResultData(const QByteArray &data)
 {
     QByteArray resultData = data;
     qDebug() << "handleResultData" ;
+
     /*对返回的数据格式进行校验*/
     if(!resultData.isEmpty() && resultData.at(0) == '\xAA' && resultData.at(1) == '\xBB')
     {
@@ -182,6 +183,7 @@ void MainWindow::handleRealTimeData(const QByteArray& data)
 //    LiveDataMessage* liveDataMessage = (LiveDataMessage*)data.constData();
     QByteArray realTimeData = data;
 
+    m_pDatadisplayScreen->disPlay(data);
 }
 
 void MainWindow::slotRefreshSerial()
