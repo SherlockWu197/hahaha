@@ -34,6 +34,9 @@ void MainWindow::initData()
     m_pQSerialPort = new QSerialPort();
     m_pDatadisplayScreen = new CDataDisplayScreen(ui->textBrowser);
 
+    header.append(0xAA); // 消息头高字节
+    header.append(0xBB); // 消息头低字节
+
     refreshSerial();
 }
 
@@ -43,6 +46,15 @@ void MainWindow::initConnect()
     connect(ui->btn_OpenSerial,&QPushButton::clicked, this, &MainWindow::slotClickConnectSerialBtn);
     connect(ui->btn_CloseSerial,&QPushButton::clicked, this, &MainWindow::slotClickCloseSerialBtn);
     connect(ui->btn_RequestID, &QPushButton::clicked, this, &MainWindow::requestDeviceID);
+//    connect(ui->btn_RealTimeMeasure, &QPushButton::clicked, this, &MainWindow::requestRealTimeData);
+    connect(ui->btn_SendData, &QPushButton::clicked, this, [=](){
+        QByteArray temByteArray;
+        QString tempString = ui->lineEdit->text();
+        temByteArray = tempString.toUtf8();
+        qDebug() << tempString;
+        qDebug() << temByteArray;
+
+    });
 }
 
 void MainWindow::refreshSerial()
@@ -69,6 +81,7 @@ void MainWindow::refreshSerial()
             ui->btn_OpenSerial->setEnabled(true);
             qserial.close();
         }
+
         else
         {
             ui->comboBox_Serial->addItem(info.portName()+"(被占用)");
@@ -78,22 +91,18 @@ void MainWindow::refreshSerial()
 
 void MainWindow::requestDeviceID()
 {
-    QByteArray header;
-    header.append(static_cast<char>(0xAA)); // 消息头字节1
-    header.append(static_cast<char>(0xBB)); // 消息头字节2
-
     // UT343D协议消息：设备ID请求
     QByteArray deviceIdRequest;
-    deviceIdRequest.append(static_cast<char>(0x31)); // 消息类型
-    deviceIdRequest.append(static_cast<char>(0x30)); // 上位机请求设备ID
-    deviceIdRequest.append(static_cast<char>(0x01)); // 校验码1
-    deviceIdRequest.append(static_cast<char>(0xCA)); // 校验码2
+    deviceIdRequest.append(0x31); // 消息类型
+    deviceIdRequest.append(0x30); // 上位机请求设备ID
+    deviceIdRequest.append(0x01); // 校验码1
+    deviceIdRequest.append(0xCA); // 校验码2
 
     // UT343D协议消息长度
     QByteArray msgLength;
-    msgLength.append(static_cast<char>(0x04));
+    msgLength.append(deviceIdRequest.length());
+
     // 发送设备ID请求消息到串口
-//    QByteArray requestPacket = header + QByteArray::number(deviceIdRequest.length()) + deviceIdRequest;
     QByteArray requestPacket = header + msgLength + deviceIdRequest;
 
     qDebug() << requestPacket;
@@ -101,25 +110,76 @@ void MainWindow::requestDeviceID()
     qDebug() << deviceIdRequest.length();
 
     int bytesWritten = m_pQSerialPort->write(requestPacket);
-    if (bytesWritten == -1) {
+
+    if (bytesWritten == -1)
+    {
         qWarning() << "向串口写入数据失败：" << m_pQSerialPort->errorString();
-    } else {
+    }
+    else
+    {
         qDebug() << "已发送设备ID请求。";
     }
 
-    // 读取串口的响应数据
+    /*读取串口的响应数据*/
     QByteArray responseData;
-    while (m_pQSerialPort->waitForReadyRead(3000)) {
+
+    while(m_pQSerialPort->waitForReadyRead(3000))
+    {
         responseData.append(m_pQSerialPort->readAll());
     }
 
-    // 解析响应数据
-    if (!responseData.isEmpty()) {
+    /*解析响应数据*/
+    if (!responseData.isEmpty())
+    {
         // TODO：根据UT343D协议处理接收到的数据
         qDebug() << "收到的数据：" << responseData.toHex();
-    } else {
+    }
+    else
+    {
         qWarning() << "未从串口接收到响应数据。";
     }
+
+}
+
+void MainWindow::handleResultData(const QByteArray &data)
+{
+    QByteArray resultData = data;
+
+    qDebug() << "your result data is:" << data/*.toHex()*/;
+
+    /*解析响应数据*/
+    if(!resultData.isEmpty())
+    {
+        /*下位机设备ID*/
+        if(resultData.at(2) == 0x00)
+        {
+
+        }
+
+        /*实时数据*/
+        if(resultData.at(2) == 0x01)
+        {
+            qDebug() << "you have entred realTime Mode";
+        }
+
+        /*已存储的数据*/
+        if(resultData.at(2) == 0x05)
+        {
+
+        }
+
+        /*握手结果*/
+        if(resultData.at(2) == 0xFF)
+        {
+
+        }
+    }
+
+}
+
+void MainWindow::handleRealTimeData(const QByteArray& data)
+{
+//    LiveDataMessage* liveDataMessage = (LiveDataMessage*)data.constData();
 }
 
 void MainWindow::slotRefreshSerial()
@@ -151,8 +211,8 @@ void MainWindow::slotClickConnectSerialBtn()
     {
         connect(m_pQSerialPort, &QSerialPort::readyRead, [&]() {
             QByteArray data = m_pQSerialPort->readAll();
-            qDebug() << "Received data:" << data;
-//            ui->textBrowser->setText(data);
+           //ToDo
+            handleResultData(data);
         });
 
         /*连接上串口后更新按钮使能状态*/
