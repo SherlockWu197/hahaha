@@ -53,6 +53,7 @@ void MainWindow::initConnect()
         QString tempString = ui->lineEdit->text();
         QByteArray byteArray = QByteArray::fromHex(tempString.toUtf8());
         handleResultData(byteArray);
+
         qDebug() << "the string is:" << tempString;
         qDebug() << "the Qbytearray is:" << byteArray;
     });
@@ -148,7 +149,7 @@ void MainWindow::handleResultData(const QByteArray &data)
     qDebug() << "handleResultData" ;
 
     /*对返回的数据格式进行校验*/
-    if(!resultData.isEmpty() && resultData.at(0) == '\xAA' && resultData.at(1) == '\xBB')
+    if(!resultData.isEmpty() && data.startsWith(QByteArray::fromHex("AABB")))
     {
             qDebug() << "entre verify sentence";
             /*下位机设备ID*/
@@ -189,12 +190,13 @@ void MainWindow::handleRealTimeData(const QByteArray& data)
     m_pDatadisplayScreen->disPlay(data);
 }
 
-char MainWindow::calculateChecksum(const QByteArray &data)
+quint16 MainWindow::calculateChecksum(const QByteArray &data)
 {
-    char checksum = 0;
-    for (int i = 0; i < data.size(); ++i) {
+    quint16 checksum = 0;
+    for (int i = 0; i < data.size(); i++) {
         checksum += data.at(i);
     }
+
     return checksum;
 }
 

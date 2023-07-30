@@ -88,11 +88,6 @@ QString CDataDisplayScreen::hexToNormal(const QByteArray& hexData)
     /*存储屏幕显示的数据内容*/
     QString normal;
 
-    /*存储转换后不带空格的数值*/
-    QString noneSpaceNormal;
-
-//    QByteArray byte;
-
     /*存储数据转换为十进制浮点数的值*/
     float decimalFloat;
 

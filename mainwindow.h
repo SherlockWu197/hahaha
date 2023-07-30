@@ -55,7 +55,7 @@ private:
     void requsetDownloadData();
 
     /*计算校验和*/
-    char calculateChecksum(const QByteArray& data);
+    quint16 calculateChecksum(const QByteArray& data);
 
 
 private slots:
