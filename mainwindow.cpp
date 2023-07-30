@@ -152,26 +152,26 @@ void MainWindow::handleResultData(const QByteArray &data)
     {
             qDebug() << "entre verify sentence";
             /*下位机设备ID*/
-            if(resultData.at(2) == 0x00)
+            if(resultData.at(3) == 0x00)
             {
                 qDebug() << "you have enterd request device ID Mode";
             }
 
             /*实时数据*/
-            if(resultData.at(2) == 0x01)
+            if(resultData.at(3) == 0x01)
             {
                 qDebug() << "you have entred realTime Mode";
                 handleRealTimeData(resultData);
             }
 
             /*已存储的数据*/
-            if(resultData.at(2) == 0x05)
+            if(resultData.at(3) == 0x05)
             {
                 qDebug() << "you have entred request store data mode";
             }
 
             /*握手结果*/
-            if(resultData.at(2) == '\xFF')
+            if(resultData.at(3) == '\xFF')
             {
                 qDebug() << "you have enter request resulte of handshake";
             }

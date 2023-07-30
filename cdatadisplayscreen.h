@@ -44,8 +44,8 @@ private:
     /*显示数据*/
     void disPlayData(const QByteArray& data);
 
-    /*根据提供的6字节十六进制数转为浮点函数*/
-    float hexToFloat(const QByteArray& hexData);
+    /*将提供的6字节十六进制转为正常显示格式*/
+    QString hexToNormal(const QByteArray& hexData);
 
 protected:
     virtual void paintEvent(QPaintEvent *event);
