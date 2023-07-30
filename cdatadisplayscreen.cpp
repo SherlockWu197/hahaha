@@ -50,8 +50,10 @@ void CDataDisplayScreen::disPlayData(const QByteArray& data)
     /*display部分数据*/
     QByteArray displayData = data.mid(4, 6);
     qDebug() << "hex: " << displayData << "to normal: " << hexToNormal(displayData);
+
     ui->label_RealTimeValue->setText(hexToNormal(displayData));  //显示数值
 
+#if 0
     /*单位码数据，本协议只有um单位无其它单位,因此单位默认显示，不做处理*/
     QByteArray unitData = data.mid(10,3);
 
@@ -76,6 +78,7 @@ void CDataDisplayScreen::disPlayData(const QByteArray& data)
 
     /*check校验码*/
     QByteArray verifyData = data.mid(16,2);
+#endif
 }
 
 QString CDataDisplayScreen::hexToNormal(const QByteArray& hexData)
@@ -100,16 +103,11 @@ QString CDataDisplayScreen::hexToNormal(const QByteArray& hexData)
         if(hexData.at(i) == 0x20 || hexData.at(i) == '\x2D' || hexData.at(i) == '\x2E')
         {
             normal += ch;
-
-            qDebug() << "end of data string is:" << normal;
         }
 
-        else if((hexData.at(i) >= 0x00) && (hexData.at(i) <= 0x09))
+        else if((hexData.at(i) >= 0x30) && (hexData.at(i) <= 0x39))
         {
-            int decimal = hexData.at(i);
-            qDebug() << "Byte at index decimal" << i << "is" << decimal;
-            QString decimalStr = QString::number(decimal);
-            normal += decimalStr;
+            normal += ch;
         }
 
         /*当接收的单字节数据十进制不属于正" ",负"-",空位" ",以及0~9时进行报错*/

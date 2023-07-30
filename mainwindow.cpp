@@ -27,6 +27,22 @@ void MainWindow::initView()
     ui->tabWidget->setTabText(1, QString(tr("Histogram")));
     ui->tabWidget->setTabText(2, QString(tr("Chart")));
 
+    model = new QStandardItemModel;
+    model->setColumnCount(5);
+    ui->tableView->setModel(model);
+    model->setHeaderData(0, Qt::Horizontal, QString(tr("NO.")));
+    model->setHeaderData(1, Qt::Horizontal, QString(tr("Time")));
+    model->setHeaderData(2, Qt::Horizontal, QString(tr("Value")));
+    model->setHeaderData(3, Qt::Horizontal, QString(tr("Unit")));
+    model->setHeaderData(4, Qt::Horizontal, QString(tr("Basis")));
+
+    //给列设定宽度
+    ui->tableView->setColumnWidth(0, 80);
+    ui->tableView->setColumnWidth(1, 200);
+    ui->tableView->setColumnWidth(2, 130);
+    ui->tableView->setColumnWidth(3, 100);
+    ui->tableView->setColumnWidth(4, 140);
+
 }
 
 void MainWindow::initData()
@@ -52,6 +68,7 @@ void MainWindow::initConnect()
     connect(ui->btn_SendData, &QPushButton::clicked, this, [=](){
         QString tempString = ui->lineEdit->text();
         QByteArray byteArray = QByteArray::fromHex(tempString.toUtf8());
+
         handleResultData(byteArray);
 
         qDebug() << "the string is:" << tempString;
@@ -153,20 +170,20 @@ void MainWindow::handleResultData(const QByteArray &data)
     {
             qDebug() << "entre verify sentence";
             /*下位机设备ID*/
-            if(resultData.at(3) == 0x00)
+            if(resultData.at(3) == MSG_TYPE_DEVICE_ID)
             {
                 qDebug() << "you have enterd request device ID Mode";
             }
 
             /*实时数据*/
-            if(resultData.at(3) == 0x01)
+            if(resultData.at(3) == MSG_TYPE_LIVE_DATA)
             {
                 qDebug() << "you have entred realTime Mode";
                 handleRealTimeData(resultData);
             }
 
             /*已存储的数据*/
-            if(resultData.at(3) == 0x05)
+            if(resultData.at(3) == MSG_TYPE_STORE_DATA)
             {
                 qDebug() << "you have entred request store data mode";
             }
@@ -194,9 +211,10 @@ quint16 MainWindow::calculateChecksum(const QByteArray &data)
 {
     quint16 checksum = 0;
     for (int i = 0; i < data.size(); i++) {
-        checksum += data.at(i);
+        checksum ^= static_cast<quint8>(data.at(i));
     }
 
+    qDebug() << "the end of calculate checkSum is:" << checksum;
     return checksum;
 }
 

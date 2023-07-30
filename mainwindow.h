@@ -8,6 +8,7 @@
 #include <QSerialPort>
 #include <QByteArray>
 #include <QMessageBox>
+#include <QStandardItemModel>
 #include <cdatadisplayscreen.h>
 
 const quint8 HEADER_HIGHTBYTE = 0xAA; // 消息头高字节
@@ -15,7 +16,6 @@ const quint8 HEADER_LOWBYTE = 0xBB; // 消息头低字节
 const quint8 MSG_TYPE_DEVICE_ID = 0x00; // 消息类型：下位机设备ID
 const quint8 MSG_TYPE_LIVE_DATA = 0x01; // 消息类型：实时数据
 const quint8 MSG_TYPE_STORE_DATA = 0x05; // 消息类型，存储的数据
-const quint8 MSG_TYPE_RESULT = 0xFF;   // 消息类型：握手结果
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -71,13 +71,18 @@ private slots:
     /*点击关闭串口按钮*/
     void slotClickCloseSerialBtn();
 
-
 private:
     Ui::MainWindow *ui;
+
     QSerialPort* m_pQSerialPort;
+
     QString m_serialportName;   //用于保存串口名
+
     CDataDisplayScreen* m_pDatadisplayScreen; //自定义数据展示封装类
+
     QByteArray header;     //消息头
+
+    QStandardItemModel *model;   //表格item
 
 };
 #endif // MAINWINDOW_H
