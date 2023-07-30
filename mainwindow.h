@@ -54,6 +54,9 @@ private:
     /*请求下载数据*/
     void requsetDownloadData();
 
+    /*手动发送lineEdit中的自定义数据*/
+    void sendDataBySelf();
+
     /*计算校验和*/
     quint16 calculateChecksum(const QByteArray& data);
 

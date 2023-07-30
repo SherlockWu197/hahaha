@@ -29,7 +29,10 @@ void MainWindow::initView()
 
     model = new QStandardItemModel;
     model->setColumnCount(5);
+
     ui->tableView->setModel(model);
+    ui->tableView->setSelectionMode(QAbstractItemView::NoSelection);
+
     model->setHeaderData(0, Qt::Horizontal, QString(tr("NO.")));
     model->setHeaderData(1, Qt::Horizontal, QString(tr("Time")));
     model->setHeaderData(2, Qt::Horizontal, QString(tr("Value")));
@@ -65,15 +68,7 @@ void MainWindow::initConnect()
 //    connect(ui->btn_RealTimeMeasure, &QPushButton::clicked, this, &MainWindow::requestRealTimeData);
 
     /*手动发送数据，模拟程序对数据的处理*/
-    connect(ui->btn_SendData, &QPushButton::clicked, this, [=](){
-        QString tempString = ui->lineEdit->text();
-        QByteArray byteArray = QByteArray::fromHex(tempString.toUtf8());
-
-        handleResultData(byteArray);
-
-        qDebug() << "the string is:" << tempString;
-        qDebug() << "the Qbytearray is:" << byteArray;
-    });
+    connect(ui->btn_SendData, &QPushButton::clicked, this, &MainWindow::sendDataBySelf);
 }
 
 void MainWindow::refreshSerial()
@@ -207,11 +202,27 @@ void MainWindow::handleRealTimeData(const QByteArray& data)
     m_pDatadisplayScreen->disPlay(data);
 }
 
+void MainWindow::sendDataBySelf()
+{
+    QString tempString = ui->lineEdit->text();
+
+    QByteArray byteArray = QByteArray::fromHex(tempString.toUtf8());
+
+    /*计算校验和*/
+    QString checkSumString = QString::number(calculateChecksum(byteArray),16);
+
+    /*将数据包的校验部分给粘合一起*/
+    byteArray.append(checkSumString);
+
+    handleResultData(byteArray);
+}
+
 quint16 MainWindow::calculateChecksum(const QByteArray &data)
 {
     quint16 checksum = 0;
     for (int i = 0; i < data.size(); i++) {
-        checksum ^= static_cast<quint8>(data.at(i));
+         checksum += static_cast<quint8>(data.at(i));
+         qDebug() << "data.at(" << i << "):" << data.at(i) << " size is:" << static_cast<quint8>(data.at(i));
     }
 
     qDebug() << "the end of calculate checkSum is:" << checksum;
