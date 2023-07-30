@@ -176,14 +176,26 @@ void MainWindow::handleResultData(const QByteArray &data)
                 qDebug() << "you have enter request resulte of handshake";
             }
     }
+    else
+    {
+        qDebug() << "error,check your data form whether is right";
+    }
 }
 
 void MainWindow::handleRealTimeData(const QByteArray& data)
 {
-//    LiveDataMessage* liveDataMessage = (LiveDataMessage*)data.constData();
     QByteArray realTimeData = data;
 
     m_pDatadisplayScreen->disPlay(data);
+}
+
+char MainWindow::calculateChecksum(const QByteArray &data)
+{
+    char checksum = 0;
+    for (int i = 0; i < data.size(); ++i) {
+        checksum += data.at(i);
+    }
+    return checksum;
 }
 
 void MainWindow::slotRefreshSerial()
@@ -191,7 +203,21 @@ void MainWindow::slotRefreshSerial()
     initView();
 
     slotClickCloseSerialBtn();
+}
 
+void MainWindow::slotReceiveData()
+{
+    QByteArray data = m_pQSerialPort->readAll();
+
+    QString str = data;
+
+    /*将蓝牙接收的数据重新转换为十六进制的数*/
+    QByteArray transfromData = QByteArray::fromHex(str.toUtf8());
+   //ToDo
+    qDebug() << "receive data byte form:" << data;
+
+    qDebug() << "receive data string form:" << str;
+    handleResultData(transfromData);
 }
 
 void MainWindow::slotClickConnectSerialBtn()
@@ -213,18 +239,7 @@ void MainWindow::slotClickConnectSerialBtn()
 
     else
     {
-        connect(m_pQSerialPort, &QSerialPort::readyRead, [&]() {
-            QByteArray data = m_pQSerialPort->readAll();
-            QString str = data;
-
-            /*将通过蓝牙接收的数据重新转换为十六进制的数*/
-            QByteArray transfromData = QByteArray::fromHex(str.toUtf8());
-           //ToDo
-            qDebug() << "receive data byte form:" << data;
-
-            qDebug() << "receive data string form:" << str;
-            handleResultData(transfromData);
-        });
+        connect(m_pQSerialPort, &QSerialPort::readyRead, this, &MainWindow::slotReceiveData);
 
         /*连接上串口后更新按钮使能状态*/
         QMessageBox::information(nullptr, QString(tr("connect serial")), QString(tr("you have connected the serial!")));

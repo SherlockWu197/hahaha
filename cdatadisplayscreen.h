@@ -5,20 +5,6 @@
 #include <QPainter>
 #include <QDebug>
 
-//// 实时数据消息结构体
-//struct LiveDataMessage {
-//    quint8 headerHightByte;  // 消息头高字节
-//    quint8 headerLowByte;  // 消息头低字节
-//    quint8 length;  // 消息长度
-//    quint8 msgType; // 消息类型
-//    float display;  // 显示值
-//    char unit[3];   // 单位
-//    char function;  // 功能码
-//    quint8 mode;    // 模式
-//    quint8 status;  // 状态
-//    quint16 checksum; // 校验和
-//};
-
 namespace Ui {
 class CDataDisplayScreen;
 }
@@ -44,7 +30,7 @@ private:
     /*显示数据*/
     void disPlayData(const QByteArray& data);
 
-    /*将提供的6字节十六进制转为正常显示格式*/
+    /*将提供的6字节数值十六进制转为十进制显示格式*/
     QString hexToNormal(const QByteArray& hexData);
 
 protected:
@@ -52,6 +38,12 @@ protected:
 
 private:
     Ui::CDataDisplayScreen *ui;
+
+    float m_fNumer; //当前的数值
+    float m_fAvg;   //平均数值
+    float m_fMin;   //最小值
+    float m_fMax;  //最大值
+    bool m_bFe;    //是否为铁基
 };
 
 #endif // CDATADISPLAYSCREEN_H

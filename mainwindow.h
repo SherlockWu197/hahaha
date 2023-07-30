@@ -1,7 +1,7 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-/*可优化问题：手机蓝牙端数据转化为十六进制步骤可能较为繁杂*/
+/*问题：手机蓝牙端数据转化为十六进制步骤可能较为繁杂，蓝牙一次性传输数据有限*/
 #include <QMainWindow>
 #include <QDebug>
 #include <QSerialPortInfo>
@@ -54,10 +54,16 @@ private:
     /*请求下载数据*/
     void requsetDownloadData();
 
+    /*计算校验和*/
+    char calculateChecksum(const QByteArray& data);
+
 
 private slots:
     /*点击刷新串口*/
     void slotRefreshSerial();
+
+    /*接收串口传输的数据*/
+    void slotReceiveData();
 
     /*点击打开串口按钮*/
     void slotClickConnectSerialBtn();
