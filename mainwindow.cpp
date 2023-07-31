@@ -27,6 +27,11 @@ void MainWindow::initView()
     ui->tabWidget->setTabText(1, QString(tr("Histogram")));
     ui->tabWidget->setTabText(2, QString(tr("Chart")));
 
+    // 隐藏水平和垂直表头
+    //    ui->tableView->horizontalHeader()->hide();
+    ui->tableView->verticalHeader()->hide();
+    ui->tableView->setEditTriggers(QAbstractItemView::NoEditTriggers);
+
     model = new QStandardItemModel;
     model->setColumnCount(5);
 
@@ -65,7 +70,8 @@ void MainWindow::initConnect()
     connect(ui->btn_OpenSerial,&QPushButton::clicked, this, &MainWindow::slotClickConnectSerialBtn);
     connect(ui->btn_CloseSerial,&QPushButton::clicked, this, &MainWindow::slotClickCloseSerialBtn);
     connect(ui->btn_RequestID, &QPushButton::clicked, this, &MainWindow::requestDeviceID);
-//    connect(ui->btn_RealTimeMeasure, &QPushButton::clicked, this, &MainWindow::requestRealTimeData);
+    //    connect(ui->btn_RealTimeMeasure, &QPushButton::clicked, this, &MainWindow::requestRealTimeData);
+    connect(m_pDatadisplayScreen, SIGNAL(signalSendMsg(const STliveDataMsg&)), this, SLOT(slotReceiveMsg(const STliveDataMsg&)));
 
     /*手动发送数据，模拟程序对数据的处理*/
     connect(ui->btn_SendData, &QPushButton::clicked, this, &MainWindow::sendDataBySelf);
@@ -163,31 +169,31 @@ void MainWindow::handleResultData(const QByteArray &data)
     /*对返回的数据格式进行校验*/
     if(!resultData.isEmpty() && data.startsWith(QByteArray::fromHex("AABB")))
     {
-            qDebug() << "entre verify sentence";
-            /*下位机设备ID*/
-            if(resultData.at(3) == MSG_TYPE_DEVICE_ID)
-            {
-                qDebug() << "you have enterd request device ID Mode";
-            }
+        qDebug() << "entre verify sentence";
+        /*下位机设备ID*/
+        if(resultData.at(3) == MSG_TYPE_DEVICE_ID)
+        {
+            qDebug() << "you have enterd request device ID Mode";
+        }
 
-            /*实时数据*/
-            if(resultData.at(3) == MSG_TYPE_LIVE_DATA)
-            {
-                qDebug() << "you have entred realTime Mode";
-                handleRealTimeData(resultData);
-            }
+        /*实时数据*/
+        if(resultData.at(3) == MSG_TYPE_LIVE_DATA)
+        {
+            qDebug() << "you have entred realTime Mode";
+            handleRealTimeData(resultData);
+        }
 
-            /*已存储的数据*/
-            if(resultData.at(3) == MSG_TYPE_STORE_DATA)
-            {
-                qDebug() << "you have entred request store data mode";
-            }
+        /*已存储的数据*/
+        if(resultData.at(3) == MSG_TYPE_STORE_DATA)
+        {
+            qDebug() << "you have entred request store data mode";
+        }
 
-            /*握手结果*/
-            if(resultData.at(3) == '\xFF')
-            {
-                qDebug() << "you have enter request resulte of handshake";
-            }
+        /*握手结果*/
+        if(static_cast<quint8>(resultData.at(3)) == MSG_TYPE_SHAKE_HAND)
+        {
+            qDebug() << "you have enter request resulte of handshake";
+        }
     }
     else
     {
@@ -221,8 +227,8 @@ quint16 MainWindow::calculateChecksum(const QByteArray &data)
 {
     quint16 checksum = 0;
     for (int i = 0; i < data.size(); i++) {
-         checksum += static_cast<quint8>(data.at(i));
-         qDebug() << "data.at(" << i << "):" << data.at(i) << " size is:" << static_cast<quint8>(data.at(i));
+        checksum += static_cast<quint8>(data.at(i));
+        qDebug() << "data.at(" << i << "):" << data.at(i) << " size is:" << static_cast<quint8>(data.at(i));
     }
 
     qDebug() << "the end of calculate checkSum is:" << checksum;
@@ -244,7 +250,7 @@ void MainWindow::slotReceiveData()
 
     /*将蓝牙接收的数据重新转换为十六进制的数*/
     QByteArray transfromData = QByteArray::fromHex(str.toUtf8());
-   //ToDo
+    //ToDo
     qDebug() << "receive data byte form:" << data;
 
     qDebug() << "receive data string form:" << str;
@@ -292,5 +298,30 @@ void MainWindow::slotClickCloseSerialBtn()
     }
 
     refreshSerial();
+}
+
+void MainWindow::slotReceiveMsg(const STliveDataMsg &liveDataMessage)
+{
+    static int itemCount = 1; // 计数器变量
+    QDateTime currentTime = QDateTime::currentDateTime();
+
+    qDebug() << "slotReceiveLiveDataMessageToTable" << liveDataMessage.display;
+
+    QList<QStandardItem *> rowData1;
+    rowData1 << new QStandardItem(QString::number(itemCount));  //No.
+    rowData1 << new QStandardItem(currentTime.toString());  //Time
+    rowData1 << new QStandardItem(QString::number(liveDataMessage.display));
+    rowData1 << new QStandardItem(liveDataMessage.unit);
+    rowData1 << new QStandardItem(liveDataMessage.function);
+
+    for (int i = 0; i < rowData1.size(); ++i)
+    {
+        /*遍历item设置文本居中*/
+        rowData1.at(i)->setTextAlignment(Qt::AlignCenter);
+    }
+
+    model->appendRow(rowData1);
+
+    itemCount++;
 }
 

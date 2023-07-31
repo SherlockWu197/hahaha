@@ -22,6 +22,7 @@ SOURCES += \
 
 HEADERS += \
     cdatadisplayscreen.h \
+    global.h \
     mainwindow.h
 
 FORMS += \

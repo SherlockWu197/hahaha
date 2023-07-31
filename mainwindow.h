@@ -10,12 +10,8 @@
 #include <QMessageBox>
 #include <QStandardItemModel>
 #include <cdatadisplayscreen.h>
-
-const quint8 HEADER_HIGHTBYTE = 0xAA; // 消息头高字节
-const quint8 HEADER_LOWBYTE = 0xBB; // 消息头低字节
-const quint8 MSG_TYPE_DEVICE_ID = 0x00; // 消息类型：下位机设备ID
-const quint8 MSG_TYPE_LIVE_DATA = 0x01; // 消息类型：实时数据
-const quint8 MSG_TYPE_STORE_DATA = 0x05; // 消息类型，存储的数据
+#include <global.h>
+#include <QDateTime>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -73,6 +69,9 @@ private slots:
 
     /*点击关闭串口按钮*/
     void slotClickCloseSerialBtn();
+
+    /*接收返回的实时消息结构体并插入到表格中*/
+    void slotReceiveMsg(const STliveDataMsg& liveDataMessage);
 
 private:
     Ui::MainWindow *ui;

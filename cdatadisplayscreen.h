@@ -4,6 +4,7 @@
 #include <QWidget>
 #include <QPainter>
 #include <QDebug>
+#include <global.h>
 
 namespace Ui {
 class CDataDisplayScreen;
@@ -35,6 +36,10 @@ private:
 
 protected:
     virtual void paintEvent(QPaintEvent *event);
+
+signals:
+    /*发送实时消息结构体*/
+    void signalSendMsg(const STliveDataMsg& livedataMessage);
 
 private:
     Ui::CDataDisplayScreen *ui;

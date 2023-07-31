@@ -47,15 +47,23 @@ void CDataDisplayScreen::InitData()
 
 void CDataDisplayScreen::disPlayData(const QByteArray& data)
 {
+    /*定义一个存储实时数据的结构体*/
+    STliveDataMsg liveDataMessage;
+
     /*display部分数据*/
     QByteArray displayData = data.mid(4, 6);
     qDebug() << "hex: " << displayData << "to normal: " << hexToNormal(displayData);
+
+    float fDataValue = hexToNormal(displayData).toFloat();
+
+    liveDataMessage.display = fDataValue;
 
     ui->label_RealTimeValue->setText(hexToNormal(displayData));  //显示数值
 
 #if 0
     /*单位码数据，本协议只有um单位无其它单位,因此单位默认显示，不做处理*/
     QByteArray unitData = data.mid(10,3);
+    liveDataMessage.unit = "um";
 
     /*Function数据*/
     QByteArray functionData = data.mid(13,1);
@@ -64,10 +72,12 @@ void CDataDisplayScreen::disPlayData(const QByteArray& data)
     if(functionData.at(0) == '\x46')
     {
         ui->label_Fe->setText("Fe");
+        liveDataMessage.function = "Fe";
     }
     else
     {
         ui->label_Fe->setText("N");
+        liveDataMessage.function = "N";
     }
 
     /*模式部分数据*/
@@ -79,6 +89,8 @@ void CDataDisplayScreen::disPlayData(const QByteArray& data)
     /*check校验码*/
     QByteArray verifyData = data.mid(16,2);
 #endif
+
+    emit signalSendMsg(liveDataMessage);
 }
 
 QString CDataDisplayScreen::hexToNormal(const QByteArray& hexData)
