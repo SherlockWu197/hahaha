@@ -18,6 +18,7 @@ struct STliveDataMsg {
     QString function;  // 功能码
     quint8 mode;    // 模式
     quint8 status;  // 状态
+    bool bIsOverload;  //溢出标志位
 };
 
 

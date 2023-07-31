@@ -60,7 +60,7 @@ void CDataDisplayScreen::disPlayData(const QByteArray& data)
 
     ui->label_RealTimeValue->setText(hexToNormal(displayData));  //显示数值
 
-#if 0
+#if 1
     /*单位码数据，本协议只有um单位无其它单位,因此单位默认显示，不做处理*/
     QByteArray unitData = data.mid(10,3);
     liveDataMessage.unit = "um";

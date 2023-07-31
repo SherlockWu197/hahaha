@@ -166,6 +166,11 @@ void MainWindow::handleResultData(const QByteArray &data)
     QByteArray resultData = data;
     qDebug() << "handleResultData" ;
 
+    qDebug() << "sizeof resultdata is:" << resultData.size();
+
+    qDebug() << "sizeof data is:" << data.toHex();
+    qDebug() << "data is:" << data;
+
     /*对返回的数据格式进行校验*/
     if(!resultData.isEmpty() && data.startsWith(QByteArray::fromHex("AABB")))
     {
@@ -254,7 +259,7 @@ void MainWindow::slotReceiveData()
     qDebug() << "receive data byte form:" << data;
 
     qDebug() << "receive data string form:" << str;
-    handleResultData(transfromData);
+    handleResultData(data);
 }
 
 void MainWindow::slotClickConnectSerialBtn()
